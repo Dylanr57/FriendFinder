@@ -122,8 +122,6 @@
 
 $("#submit").on("click", function(event){
     event.preventDefault();
-    console.log("hello");
-    alert("clicked on submit");
 
     var userAnswers = [];
     var userName = $("#name").val().trim();
@@ -133,14 +131,40 @@ $("#submit").on("click", function(event){
         for (let i = 1; i < 11; i++){
             userAnswers.push(parseInt($("#question" + i).val()));
         }
+        var userAnswersInt = [];
+        var userSum = 0;
+        for (let i = 0; i < userAnswers.length; i++){
+            userAnswersInt.push(parseInt(userAnswers[i]));
+            userSum += userAnswersInt[i];
+        }
 
         var newFriend = {
             name: userName,
             photo: userPhoto,
-            scores: userAnswers
+            scores: userAnswersInt
         }
 
         console.log(newFriend);
+
+        $.get("/api/friends", function(data) {
+            console.log(data);
+            
+            var differences = 41;
+            var bestFriend = "";
+            
+
+            for (let i = 0; i < data.length; i++){
+                var friendSum = 0;
+                for (let j = 0; i < data[i].scores.length; j++){
+                    friendSum += data[i].scores[j];
+                }
+                if (Math.abs(friendSum - userSum) <= differences){
+                    bestFriend = data[i].name;
+                }
+            }
+
+            alert("Your closest friend is " + bestFriend);
+        });
 
         $.post("/api/friends", newFriend);
 
